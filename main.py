@@ -9,17 +9,23 @@ import logging
 import bottle
 
 
-# Configure the logging module
+# Configure the logging module.
 logformat = '%(asctime)s : %(levelname)s : %(name)s : %(message)s'
 logging.basicConfig(format=logformat, level=logging.INFO)
 
 
-# If a semaphore is not released within this time in seconds, it is automatically released
+# If a semaphore is not released within this time in seconds, it is automatically released.
 DEFAULT_TIMEOUT = 300
 
 
-# Semaphore data is stored in memory
+# Semaphore data is stored in a simple dictionary.
 SEMAPHORES = {}
+
+
+# Ensure no requests are ever cached.
+@bottle.hook('after_request')
+def _setdefaultheaders():
+    bottle.response.set_header('Cache-Control', 'no-cache')
 
 
 @bottle.get('/<semaphoreid>')
@@ -37,6 +43,7 @@ def _getsemaphore(semaphoreid):
     if currenttime > semaphore['expiry']:
         timeout = bottle.request.get('timeout', DEFAULT_TIMEOUT)
         semaphore['expiry'] = currenttime + datetime.timedelta(seconds=timeout)
+        logging.info('Semaphore "{0}" acquired'.format(semaphoreid))
         bottle.response.status = 204
     else:
         bottle.abort(403, 'Semaphore "{0}" is not available'.format(semaphoreid))
@@ -54,6 +61,7 @@ def _deletesemaphore(semaphoreid):
     """
     try:
         del SEMAPHORES[semaphoreid]
+        logging.info('Semaphore "{0}" released'.format(semaphoreid))
         bottle.response.status = 204
     except KeyError:
         bottle.abort(404, 'Semaphore "{0}" does not exist'.format(semaphoreid))
@@ -65,14 +73,12 @@ def _deletesemaphore(semaphoreid):
 @bottle.error(500)
 def _error(error):
     """
-    Return an error message to clients.
+    Log errors for all potential HTTP bad codes.
     @param error: The error message from an above function
-    @return: The appropriate error message
     """
-    bottle.response.set_header('Cache-Control', 'no-cache')
-    bottle.response.set_header('Content-Type', 'text/plain')
-    return error.body
+    logging.info(error.body)
 
 
-# Start the HTTP server
+# Start the HTTP server.
+logging.info('Starting HTTP server')
 bottle.run(host='0.0.0.0', quiet=True)
