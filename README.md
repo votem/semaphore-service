@@ -26,7 +26,7 @@ not currently have the semaphre acquired, and a 404 if the semaphore does not ex
 
 ## To-Do
 
-*   Dockerize on port 80 and deploy somewhere with `semaphore.e1c.net`
+*   Dockerize on port 80 and deploy somewhere with a real domain name
 *   deal with potential race condition in GET and DELETE (current way is single-threaded bottle server)
 *   create a requestor ID (hash user agent + IP or some such thing) to protect DELETEs and otherwise track requestors
 *   allow true counting semaphores (count specified at creation time)
