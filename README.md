@@ -32,3 +32,14 @@ not currently have the semaphre acquired, and a 404 if the semaphore does not ex
 *   allow true counting semaphores (count specified at creation time)
 *   allow specification of timeout via query parameter when getting
 *   durable semaphore storage (redis?)
+
+## Credits
+
+This software was developed as an internal project at Votem Corp.
+
+Votem bolsters trust, access, and transparency in elections with a core suite
+of products spanning voter registration, mobile and electronic ballot marking
+for military and overseas voters and voters with accessibility considerations,
+and election management systems focused on security and verifiable voting.
+
+For more information, visit https://votem.com.
